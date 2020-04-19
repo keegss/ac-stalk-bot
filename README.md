@@ -1,1 +1,1 @@
-I am a discord bot that save stalk data and makes predictions for users.
+I am a discord bot that saves stalk data and makes predictions for users.
