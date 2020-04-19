@@ -1,0 +1,1 @@
+I am a discord bot that save stalk data and makes predictions for users.
