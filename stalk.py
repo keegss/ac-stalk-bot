@@ -5,23 +5,65 @@ import requests
 import secrets
 
 class StalkBot(discord.Client):
+
+    err_string = ("Invalid command!\n" "Available commands:\n"
+                        "\tprice <stalk price> <am/pm>")
+
     async def on_message(self, message):
-        # check if bot posted
+        # ignore if bot post
         if message.author == self.user: return
 
-        if message.content[0] == '!':
-            # check if valid command
-            command = message.content.split(' ')
-            print(command)
-            if command[0] == '!stalk':
-                try:
-                    print(command[1])
-                except:
-                    err_string = ("Invalid command!\n" "Available commands:\n"
-                                    "\tprice <stalk price> <am/pm>")
-                    await message.channel.send(err_string)
+        command = message.content.split(' ')
+
+        # verify if command
+        if command[0] != '!stalk':
+            return
+
+
+        # verify command present and handle
+        try:
+            cmd_type = command[1]
+        except:
+            await message.channel.send(self.err_string)
+            return
+
+        if cmd_type == 'price':
+            try:
+                price = command[2]
+                am_or_pm = command[3]
+            except:
+                await message.channel.send(self.err_string)
+                return
+
+            self.price(message, price, am_or_pm)
+        elif cmd_type == 'predict':
+            self.predict(message)
+        else:
+            await message.channel.send(self.err_string)
+            return
                  
-        # print('Message from {0.author}: {0.content}'.format(message))
+    async def price(self, message, price, am_or_pm):
+        user = message.author
+        print(user)
+        print(price)
+        print(am_or_pm)
+        # verify input
+        if not isinstance(price, int) or not isinstance(am_or_pm, str):
+            await message.channel.send(('Invalid price command;\n' 
+                                        'Example use: !stalk price <cost as integer> <string am or pm>'))
+            return
+
+        # for user
+            # store price for current day as am/pm
+            # in db
+
+    async def predict(self, message):
+        # for user
+            # retrieve current week prices so far from database
+            # use Turnip Calculator to get current prediction
+        
+
+
 
 if __name__ == "__main__":
     bot = StalkBot()
