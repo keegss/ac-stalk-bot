@@ -61,16 +61,9 @@ class StalkBot(discord.Client):
         # for user
             # retrieve current week prices so far from database
             # use Turnip Calculator to get current prediction
-        
-
-
+        # r = requests.get('https://api.ac-turnip.com/data/?f=-129-93-160-193-168-46')
+        # print(r.json())
 
 if __name__ == "__main__":
     bot = StalkBot()
     bot.run(secrets.A_TOKEN)
-
-    # use api from Turnip Calculator (https://ac-turnip.com/) to predict
-        # want to find out how they are actually doing this but damn
-        # if their site aint nice as hell
-    # r = requests.get('https://api.ac-turnip.com/data/?f=-129-93-160-193-168-46')
-    # print(r.json())
