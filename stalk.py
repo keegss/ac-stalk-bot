@@ -8,7 +8,7 @@ class StalkBot(discord.Client):
 
     err_string = ("Invalid command!\n" "Available commands:"
                         "\n\tprice <stalk price> <am/pm>"
-                        "\n\npredict")
+                        "\n\tpredict")
 
     async def on_message(self, message):
         # ignore if bot post
@@ -20,46 +20,46 @@ class StalkBot(discord.Client):
         if command[0] != '!stalk':
             return
 
-
-        # verify command present and handle
+        # verify command present
         try:
             cmd_type = command[1]
         except:
             await message.channel.send(self.err_string)
             return
 
+        # handle command
         if cmd_type == 'price':
-            try:
-                price = command[2]
-                am_or_pm = command[3]
-            except:
-                await message.channel.send(self.err_string)
-                return
-
-            await self.price(message, price, am_or_pm)
+            await self.price(message, command[2:])
         elif cmd_type == 'predict':
             await self.predict(message)
         else:
             await message.channel.send(self.err_string)
             return
                  
-    async def price(self, message, price, am_or_pm):
+    async def price(self, message, command):
+        try:
+            price = command[0]
+            am_or_pm = command[1]
+        except:
+            await message.channel.send(self.err_string)
+            return
+
         user = message.author
-        print(user)
-        print(price)
-        print(am_or_pm)
-        # verify input
+
+        # verify command input
         if not price.isnumeric() or not isinstance(am_or_pm, str) or \
-                                     not (am_or_pm == 'am' or am_or_pm == 'pm'):
+                                    not (am_or_pm == 'am' or am_or_pm == 'pm'):
             await message.channel.send(('Invalid price command;\n' 
                                         'Example use: !stalk price <cost as integer> <string am or pm>'))
             return
 
+        # TODO
         # for user
             # store price for current day as am/pm
             # in db
 
     async def predict(self, message):
+        # TODO
         # for user
             # retrieve current week prices so far from database
             # use Turnip Calculator to get current prediction
