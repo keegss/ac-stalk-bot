@@ -6,8 +6,9 @@ import secrets
 
 class StalkBot(discord.Client):
 
-    err_string = ("Invalid command!\n" "Available commands:\n"
-                        "\tprice <stalk price> <am/pm>")
+    err_string = ("Invalid command!\n" "Available commands:"
+                        "\n\tprice <stalk price> <am/pm>"
+                        "\n\npredict")
 
     async def on_message(self, message):
         # ignore if bot post
@@ -35,9 +36,9 @@ class StalkBot(discord.Client):
                 await message.channel.send(self.err_string)
                 return
 
-            self.price(message, price, am_or_pm)
+            await self.price(message, price, am_or_pm)
         elif cmd_type == 'predict':
-            self.predict(message)
+            await self.predict(message)
         else:
             await message.channel.send(self.err_string)
             return
@@ -48,7 +49,8 @@ class StalkBot(discord.Client):
         print(price)
         print(am_or_pm)
         # verify input
-        if not isinstance(price, int) or not isinstance(am_or_pm, str):
+        if not price.isnumeric() or not isinstance(am_or_pm, str) or \
+                                     not (am_or_pm == 'am' or am_or_pm == 'pm'):
             await message.channel.send(('Invalid price command;\n' 
                                         'Example use: !stalk price <cost as integer> <string am or pm>'))
             return
@@ -63,6 +65,7 @@ class StalkBot(discord.Client):
             # use Turnip Calculator to get current prediction
         # r = requests.get('https://api.ac-turnip.com/data/?f=-129-93-160-193-168-46')
         # print(r.json())
+        print('a lot or nothing')
 
 if __name__ == "__main__":
     bot = StalkBot()
