@@ -57,6 +57,11 @@ class StalkBot(discord.Client):
         # for user
             # store price for current day as am/pm
             # in db
+            
+        print(user)
+        print(price)
+        print(am_or_pm)
+        print(message.created_at.today().weekday())
 
     async def predict(self, message):
         # TODO
