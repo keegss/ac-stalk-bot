@@ -1,5 +1,6 @@
 import pymongo
 import pprint
+from datetime import date
 
 class Mongo:
     def __init__(self):
@@ -14,6 +15,7 @@ class Mongo:
         if user_entry is None:
             user_entry = {
                 'user': user,
+                'expected_day': date.today().weekday(),
                 '0': [0, 0],
                 '1': [0, 0],
                 '2': [0, 0],
@@ -25,17 +27,25 @@ class Mongo:
 
         return self.update_user_data(user_entry, price, am_or_pm, day)
 
-        # TODO:
-            # when to clear the week??
-            # force clear if next price is from day not expected?
-                # day not expected = day < expected_day
-                    # where day is user input
-                    # expected day is last day entered
-
     def update_user_data(self, user_entry, price, am_or_pm, day) -> bool:
         if int(day) < 0 or int(day) > 6:
             return False
-        
+
+        if int(day) < user_entry['expected_day']:
+            # reset users week data
+            reset_user_entry = {
+                'user': user_entry['user'],
+                'expected_day': user_entry['expected_day'],
+                '0': [0, 0],
+                '1': [0, 0],
+                '2': [0, 0],
+                '3': [0, 0],
+                '4': [0, 0],
+                '5': [0, 0]
+            }
+            self.villagers.delete_one({'user': 'keegs#7270'})
+            self.villagers.insert_one(reset_user_entry)
+
         if am_or_pm == 'am':
             user_entry[day][0] = price
         else:
@@ -63,6 +73,7 @@ def main():
     mongo = Mongo()
     mongo.enter_user_price('keegs#7270', 165, 'am', '1')
     villagers = mongo.db.villagers
+    pprint.pprint(villagers.find_one({'user': 'keegs#7270'}))
     pprint.pprint(villagers.find_one({'user': 'keegs#7270'}))
     mongo.close()
 
