@@ -29,20 +29,6 @@ class Mongo:
         else:
             return self.update_user_data(user_entry, price, am_or_pm, day)
 
-    def reset_user(self, user: str):
-        reset_user_entry = {
-            'user': user_entry['user'],
-            'expected_day': data.today.weekday(),
-            '0': [0, 0],
-            '1': [0, 0],
-            '2': [0, 0],
-            '3': [0, 0],
-            '4': [0, 0],
-            '5': [0, 0]
-        }
-        self.villagers.delete_one({'user': user_entry['user']})
-        self.villagers.insert_one(reset_user_entry)
-
     def update_user_data(self, user_entry, price, am_or_pm, day) -> bool:
         if day < 0 or day > 6:
             return False
@@ -67,6 +53,20 @@ class Mongo:
             # API get to turnip calulator
         # else
             # User has no data associated!
+
+        def reset_user(self, user: str):
+        reset_user_entry = {
+            'user': user_entry['user'],
+            'expected_day': data.today.weekday(),
+            '0': [0, 0],
+            '1': [0, 0],
+            '2': [0, 0],
+            '3': [0, 0],
+            '4': [0, 0],
+            '5': [0, 0]
+        }
+        self.villagers.delete_one({'user': user_entry['user']})
+        self.villagers.insert_one(reset_user_entry)
 
     def close(self):
         self.client.close()
