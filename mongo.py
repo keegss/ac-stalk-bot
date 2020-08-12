@@ -49,26 +49,21 @@ class Mongo:
         return True
 
     def predict(self, user: str) -> Tuple[List[int], List[int]]:
-        pass
-
         user_entry = self.villagers.find_one({'user': user})
         if user_entry:
-            # format string
+            # Format and perform get call
             req_str = 'https://api.ac-turnip.com/data/?f='
             temp = ''
             for i in range(0, 6):
                 temp = temp + '-' + str(user_entry[str(i)][0]) + '-' + str(user_entry[str(i)][1])
-            req_str += temp
-            print(req_str)            
+            req_str += temp           
             r = requests.get(req_str)
 
             res = r.json()
             min_max = res['minMaxPattern']
             avg_pattern = res['avgPattern']
-            print(min_max)
-            print(avg_pattern)
 
-            return True
+            return (min_max, avg_pattern)
         else:
             # User has no data associated!
             return None
@@ -94,7 +89,9 @@ def main():
     mongo = Mongo()
     villagers = mongo.db.villagers
     mongo.enter_user_price('keegs#7270', 185, 'am')
-    mongo.predict('keegs#7270')
+    min_max, avg = mongo.predict('keegs#7270')
+    print(min_max)
+    print(avg)
     mongo.close()
 
 if __name__ == '__main__':
