@@ -51,7 +51,7 @@ class Mongo:
     def predict(self, user: str) -> Tuple[List[int], List[int]]:
         user_entry = self.villagers.find_one({'user': user})
         if user_entry:
-            # Format and perform get call
+            # format and perform get call
             req_str = 'https://api.ac-turnip.com/data/?f='
             temp = ''
             for i in range(0, 6):
@@ -65,7 +65,7 @@ class Mongo:
 
             return (min_max, avg_pattern)
         else:
-            # User has no data associated!
+            # user has no data associated
             return None
 
     def reset_user(self, user: str):
