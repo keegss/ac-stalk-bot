@@ -55,9 +55,8 @@ class Mongo:
             req_str = 'https://api.ac-turnip.com/data/?f='
             temp = ''
             for i in range(0, 6):
-                temp = temp + '-' + str(user_entry[str(i)][0]) + '-' + str(user_entry[str(i)][1])
-            req_str += temp           
-            r = requests.get(req_str)
+                temp = '{}-{}-{}'.format(temp, user_entry[str(i)][0], user_entry[str(i)][1])
+            r = requests.get(req_str + temp)
 
             res = r.json()
             min_max = res['minMaxPattern']
@@ -89,9 +88,10 @@ def main():
     mongo = Mongo()
     villagers = mongo.db.villagers
     mongo.enter_user_price('keegs#7270', 185, 'am')
-    min_max, avg = mongo.predict('keegs#7270')
-    print(min_max)
-    print(avg)
+    res = mongo.predict('keegs#7270')
+    if res:
+        print(res[0])
+        print(res[1])
     mongo.close()
 
 if __name__ == '__main__':
