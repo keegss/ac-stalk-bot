@@ -1,6 +1,9 @@
+from datetime import date
+from typing import List, Tuple
+
 import pymongo
 import pprint
-from datetime import date
+import requests
 
 class Mongo:
     def __init__(self):
@@ -45,28 +48,44 @@ class Mongo:
 
         return True
 
-    def predict(self):
+    def predict(self, user: str) -> Tuple[List[int], List[int]]:
         pass
-        # is user
-            # retrieve user from db
+
+        user_entry = self.villagers.find_one({'user': user})
+        if user_entry:
             # format string
-            # API get to turnip calulator
-        # else
+            req_str = 'https://api.ac-turnip.com/data/?f='
+            temp = ''
+            for i in range(0, 6):
+                temp = temp + '-' + str(user_entry[str(i)][0]) + '-' + str(user_entry[str(i)][1])
+            req_str += temp
+            print(req_str)            
+            r = requests.get(req_str)
+
+            res = r.json()
+            min_max = res['minMaxPattern']
+            avg_pattern = res['avgPattern']
+            print(min_max)
+            print(avg_pattern)
+
+            return True
+        else:
             # User has no data associated!
+            return None
 
     def reset_user(self, user: str):
-    reset_user_entry = {
-        'user': user_entry['user'],
-        'expected_day': data.today.weekday(),
-        '0': [0, 0],
-        '1': [0, 0],
-        '2': [0, 0],
-        '3': [0, 0],
-        '4': [0, 0],
-        '5': [0, 0]
-    }
-    self.villagers.delete_one({'user': user_entry['user']})
-    self.villagers.insert_one(reset_user_entry)
+        reset_user_entry = {
+            'user': user_entry['user'],
+            'expected_day': data.today.weekday(),
+            '0': [0, 0],
+            '1': [0, 0],
+            '2': [0, 0],
+            '3': [0, 0],
+            '4': [0, 0],
+            '5': [0, 0]
+        }
+        self.villagers.delete_one({'user': user_entry['user']})
+        self.villagers.insert_one(reset_user_entry)
 
     def close(self):
         self.client.close()
@@ -74,9 +93,8 @@ class Mongo:
 def main():
     mongo = Mongo()
     villagers = mongo.db.villagers
-    villagers.drop()
     mongo.enter_user_price('keegs#7270', 185, 'am')
-    pprint.pprint(villagers.find_one({'user': 'keegs#7270'}))
+    mongo.predict('keegs#7270')
     mongo.close()
 
 if __name__ == '__main__':
