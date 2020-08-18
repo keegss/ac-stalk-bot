@@ -83,16 +83,3 @@ class Mongo:
 
     def close(self):
         self.client.close()
-
-def main():
-    mongo = Mongo()
-    villagers = mongo.db.villagers
-    mongo.enter_user_price('keegs#7270', 185, 'am')
-    res = mongo.predict('keegs#7270')
-    if res:
-        print(res[0])
-        print(res[1])
-    mongo.close()
-
-if __name__ == '__main__':
-    main()

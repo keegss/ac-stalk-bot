@@ -3,12 +3,15 @@
 import discord
 import requests
 import secrets
+from mongo import Mongo
 
 class StalkBot(discord.Client):
 
     err_string = ("Invalid command!\n" "Available commands:"
                         "\n\tprice <stalk price> <am/pm>"
                         "\n\tpredict")
+
+    mongo = Mongo()
 
     async def on_message(self, message):
         # ignore if bot post
@@ -53,25 +56,17 @@ class StalkBot(discord.Client):
                                         'Example use: !stalk price <cost as integer> <string am or pm>'))
             return
 
-        # TODO
-        # for user
-            # store price for current day as am/pm
-            # in db
-            
-        print(user)
-        print(price)
-        print(am_or_pm)
-        print(message.created_at.today().weekday())
+        self.mongo.enter_user_price(str(user), price, am_or_pm)
 
     async def predict(self, message):
-        # TODO
-        # for user
-            # retrieve current week prices so far from database
-            # use Turnip Calculator to get current prediction
-        # r = requests.get('https://api.ac-turnip.com/data/?f=-129-93-160-193-168-46')
-        # print(r.json())
-        print('a lot or nothing')
+        user = str(message.author)
+        res = self.mongo.predict(user)
+        if res:
+            await message.channel.send('Predict for {}.\nWeek Min Max: {}\nWeek Average Pattern: {}'.format(user, res[0], res[1]))
+        else:
+            await message.channel.send('No data for user {}!'.format(user))
 
 if __name__ == "__main__":
     bot = StalkBot()
     bot.run(secrets.A_TOKEN)
+    bot.mongo.close()
