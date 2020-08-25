@@ -35,6 +35,8 @@ class StalkBot(discord.Client):
             await self.price(message, command[2:])
         elif cmd_type == 'predict':
             await self.predict(message)
+        elif cmd_type == 'info':
+            await self.info(message)
         else:
             await message.channel.send(self.err_string)
             return
@@ -56,13 +58,22 @@ class StalkBot(discord.Client):
                                         'Example use: !stalk price <cost as integer> <string am or pm>'))
             return
 
-        self.mongo.enter_user_price(str(user), price, am_or_pm)
+        formatted_user_data = self.mongo.enter_user_price(str(user), price, am_or_pm)
+        await message.channel.send(formatted_user_data)
 
     async def predict(self, message):
         user = str(message.author)
         res = self.mongo.predict(user)
         if res:
             await message.channel.send('Predict for {}.\nWeek Min Max: {}\nWeek Average Pattern: {}'.format(user, res[0], res[1]))
+        else:
+            await message.channel.send('No data for user {}!'.format(user))
+    
+    async def info(self, message):
+        user = str(message.author)
+        user_data = self.mongo.formatted_user_data(user)
+        if user_data:
+            await message.channel.send('User Data for {}\n{}'.format(user, user_data))
         else:
             await message.channel.send('No data for user {}!'.format(user))
 
