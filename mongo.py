@@ -107,8 +107,8 @@ class Mongo:
 
     def reset_user(self, user: str):
         reset_user_entry = {
-            'user': user_entry['user'],
-            'expected_day': data.today.weekday(),
+            'user': user,
+            'expected_day': date.today().weekday(),
             '0': [0, 0],
             '1': [0, 0],
             '2': [0, 0],
@@ -116,7 +116,7 @@ class Mongo:
             '4': [0, 0],
             '5': [0, 0]
         }
-        self.villagers.delete_one({'user': user_entry['user']})
+        self.villagers.delete_one({'user': user})
         self.villagers.insert_one(reset_user_entry)
 
     def close(self):
