@@ -4,6 +4,7 @@ from typing import List, Tuple
 import pymongo
 import pprint
 import requests
+import matplotlib.pyplot as plt
 
 class Mongo:
     def __init__(self):
@@ -36,14 +37,15 @@ class Mongo:
 
         return self.formatted_user_data(user, user_entry)
     
-    def formatted_user_data(self, user, user_entry=None):
+    def formatted_user_data(self, user, user_entry=None, avg_pattern=None):
         if user_entry is None:
             user_entry = self.villagers.find_one({'user': user})
         
         if user_entry is None:
             return None
         
-        min_max, avg_pattern = self.predict(user, user_entry)
+        if avg_pattern is None: 
+            avg_pattern, avg_plot = self.predict(user, user_entry)
 
         week_data = ('"""\n```\n'
                      'Monday    : {}am {}pm\n'
@@ -52,7 +54,6 @@ class Mongo:
                      'Thursday  : {}am {}pm\n'
                      'Friday    : {}am {}pm\n'
                      'Saturday  : {}am {}pm\n'
-                    #  'Min Max   : {}\n'
                      'Avg       : {}\n'
                      '```\n"""\n'
                     ).format(user_entry['0'][0], user_entry['0'][1],
@@ -64,9 +65,23 @@ class Mongo:
                              avg_pattern)
         return week_data
 
-    def create_user_graph():
-        # TODO: matplotlib dreams
-        pass
+    def create_user_graph(self, avg_pattern):
+        am_avg = []
+        pm_avg = []
+        for i in range(len(avg_pattern)):
+            if i%2 == 0:
+                am_avg.append(avg_pattern[i])
+            else:
+                pm_avg.append(avg_pattern[i])
+
+        x_axis = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+        plt.plot(x_axis, am_avg, label='AM Averages')
+        plt.plot(x_axis, pm_avg, label='PM Averages')
+
+        plt.savefig('img.png')
+        plt.close('all')
+        return 'img.png'
 
     def update_user_data(self, user_entry, price, am_or_pm, day) -> bool:
         if day < 0 or day > 6:
@@ -84,7 +99,7 @@ class Mongo:
 
         return True
 
-    def predict(self, user, user_entry=None) -> Tuple[List[int], List[int]]:
+    def predict(self, user, user_entry=None):
         if user_entry is None:
             user_entry = self.villagers.find_one({'user': user})
 
@@ -100,10 +115,11 @@ class Mongo:
         r = requests.get(req_str + temp)
 
         res = r.json()
-        min_max = res['minMaxPattern']
         avg_pattern = res['avgPattern']
 
-        return (min_max, avg_pattern)
+        avg_plot = self.create_user_graph(avg_pattern)
+
+        return avg_pattern, avg_plot
 
     def reset_user(self, user: str):
         reset_user_entry = {
