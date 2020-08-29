@@ -47,7 +47,7 @@ class Mongo:
         if avg_pattern is None: 
             avg_pattern, avg_plot = self.predict(user, user_entry)
 
-        week_data = ('"""\n```\n'
+        week_data = ('```\n'
                      'Monday    : {}am {}pm\n'
                      'Tuesday   : {}am {}pm\n'
                      'Wednesday : {}am {}pm\n'
@@ -55,7 +55,7 @@ class Mongo:
                      'Friday    : {}am {}pm\n'
                      'Saturday  : {}am {}pm\n'
                      'Avg       : {}\n'
-                     '```\n"""\n'
+                     '```\n'
                     ).format(user_entry['0'][0], user_entry['0'][1],
                              user_entry['1'][0], user_entry['1'][1],
                              user_entry['2'][0], user_entry['2'][1],

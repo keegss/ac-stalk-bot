@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 
+from datetime import date
 import discord
 import requests
 import secrets
 from mongo import Mongo
+from tabulate import tabulate
 
 class StalkBot(discord.Client):
 
@@ -46,6 +48,8 @@ class StalkBot(discord.Client):
             await self.clear(message)
         elif cmd_type == 'help':
             await self.help(message)
+        elif cmd_type == 'fish':
+            await self.get_fish(message)
         else:
             await message.channel.send(self.err_string)
             return
@@ -95,6 +99,38 @@ class StalkBot(discord.Client):
         user = str(message.author)
         self.mongo.reset_user(user)
         await message.channel.send('Cleared data for user {}'.format(user))
+
+    async def get_fish(self, message):
+        curr_month = date.today().month
+        fish_data = requests.get('http://acnhapi.com/v1/fish')
+        available_fish = []
+        for fish, data in fish_data.json().items():
+            if data['availability']['isAllYear']:
+                available_fish.append((data['name']['name-USen'],
+                                    data['availability']['location'],
+                                    data['availability']['rarity'],
+                                    data['price'],
+                                    data['price-cj']))
+                continue
+
+            # print(fish, data)
+            months_available = data['availability']['month-northern'].split('&')
+            ranges = []
+            for months in months_available:
+                ranges.append(months.strip().split('-'))
+            for r in ranges:
+                if curr_month >= int(r[0]) and curr_month <= int(r[1]):
+                    available_fish.append((data['name']['name-USen'], 
+                                        data['availability']['location'],
+                                        data['availability']['rarity'],
+                                        data['price'],
+                                        data['price-cj']))
+                    break
+
+        res = tabulate(available_fish, headers=['Name', 'Location', 'Rarity', 
+                                                'Price', 'CJ Price'])
+        res = '```\n' + res + '\n```\n'
+        await message.channel.send(res)
 
     async def help(self, message):
         await message.channel.send(self.available_commands)
