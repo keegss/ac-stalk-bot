@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 
+"""stalk.py
+Main interface between Discord and Bot. Processes all incoming messages
+looking for stalk commands.
+"""
+
 from datetime import date
 import discord
 import requests
@@ -20,7 +25,13 @@ class StalkBot(discord.Client):
 
     mongo = Mongo()
 
+
     async def on_message(self, message):
+        """
+        @brief Async callback called after any message is posted to server
+        @param message - message data
+        """
+
         # ignore if bot post
         if message.author == self.user: return
 
@@ -55,6 +66,12 @@ class StalkBot(discord.Client):
             return
                  
     async def price(self, message, command):
+        """
+        @brief Verify price command and send user price data to database
+        @param message - message data
+        @param command - command to be verified
+        """
+
         try:
             if len(command) == 2:
                 day = None
@@ -87,6 +104,11 @@ class StalkBot(discord.Client):
         await message.channel.send(formatted_user_data)
     
     async def info(self, message):
+        """
+        @brief Retrieve info on user
+        @param message - message data
+        """
+
         user = str(message.author)
         user_data = self.mongo.formatted_user_data(user)
         if user_data:
@@ -96,11 +118,21 @@ class StalkBot(discord.Client):
             await message.channel.send('No data for user {}!'.format(user))
     
     async def clear(self, message):
+        """
+        @brief Clear data on user
+        @param message - message data
+        """
+
         user = str(message.author)
         self.mongo.reset_user(user)
         await message.channel.send('Cleared data for user {}'.format(user))
 
     async def get_fish(self, message):
+        """
+        @brief Retrieve and send formatted fish data
+        @param message - message data
+        """
+
         curr_month = date.today().month
         fish_data = requests.get('http://acnhapi.com/v1/fish')
         available_fish = []

@@ -1,3 +1,9 @@
+#!/usr/bin/python3
+
+"""mongo.py
+API to interface between bot and MongoDB database
+"""
+
 from datetime import date
 from typing import List, Tuple
 
@@ -13,6 +19,14 @@ class Mongo:
         self.villagers = self.db['villagers']
 
     def enter_user_price(self, user: str, price: int, am_or_pm: str, day=None):
+        """
+        @brief Store user price data in database
+        @param user - associated user
+        @param price - input price
+        @param am_or_pm - string to differentiate between am or pm
+        @param day - optional - day to save price to
+        """
+
         if day == None: day = date.today().weekday()
         
         # TODO: create archive to save data for future ml study
@@ -38,6 +52,13 @@ class Mongo:
         return self.formatted_user_data(user, user_entry)
     
     def formatted_user_data(self, user, user_entry=None, avg_pattern=None):
+        """
+        @brief Format user data for posting to discord server
+        @param user - associated user
+        @param user_entry - optional - user data from database
+        @param avg_pattern - optional - pattern of expected average prices
+        """
+
         if user_entry is None:
             user_entry = self.villagers.find_one({'user': user})
         
@@ -66,6 +87,11 @@ class Mongo:
         return week_data
 
     def create_user_graph(self, avg_pattern):
+        """
+        @brief Generate graph using matplotlib to post to discord server
+        @param avg_pattern - pattern of expected average prices
+        """
+
         am_avg = []
         pm_avg = []
         for i in range(len(avg_pattern)):
@@ -84,6 +110,14 @@ class Mongo:
         return 'img.png'
 
     def update_user_data(self, user_entry, price, am_or_pm, day) -> bool:
+        """
+        @brief Update data for user
+        @param user_entry - optional - user data from database
+        @param price - input price
+        @param am_or_pm - string to differentiate between am or pm
+        @param day - optional - day to save price to
+        """
+
         if day < 0 or day > 6:
             return False
 
@@ -100,6 +134,12 @@ class Mongo:
         return True
 
     def predict(self, user, user_entry=None):
+        """
+        @brief Make a prediction of future stalk prices for user
+        @param user - user to make prediction for
+        @param user_entry - optional - user data from database
+        """
+
         if user_entry is None:
             user_entry = self.villagers.find_one({'user': user})
 
@@ -122,6 +162,10 @@ class Mongo:
         return avg_pattern, avg_plot
 
     def reset_user(self, user: str):
+        """
+        @brief Clear database entry for user
+        @param user - user to clear data for
+        """
         reset_user_entry = {
             'user': user,
             'expected_day': date.today().weekday(),
@@ -136,4 +180,7 @@ class Mongo:
         self.villagers.insert_one(reset_user_entry)
 
     def close(self):
+        """
+        @brief Close the mongo client
+        """
         self.client.close()
